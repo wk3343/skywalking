@@ -96,7 +96,7 @@ EOT
 else
     cat <<EOT >> ${var_application_file}
 storage:
-  elasticsearch:
+  elasticsearch7:
 EOT
 fi
 cat <<EOT >> ${var_application_file}
