@@ -85,6 +85,14 @@ public class TraceSegment {
         this.createTime = System.currentTimeMillis();
     }
 
+    public TraceSegment(boolean throttling) {
+        this.traceSegmentId = GlobalIdGenerator.generate();
+        this.spans = new LinkedList<AbstractTracingSpan>();
+        this.relatedGlobalTraces = new DistributedTraceIds();
+        this.relatedGlobalTraces.append(new NewDistributedTraceId(throttling));
+        this.createTime = System.currentTimeMillis();
+    }
+
     /**
      * Establish the link between this segment and its parents.
      *

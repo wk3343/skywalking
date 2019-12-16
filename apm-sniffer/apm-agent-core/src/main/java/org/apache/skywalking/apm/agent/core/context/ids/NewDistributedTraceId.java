@@ -28,4 +28,8 @@ public class NewDistributedTraceId extends DistributedTraceId {
     public NewDistributedTraceId() {
         super(GlobalIdGenerator.generate());
     }
+
+    public NewDistributedTraceId(boolean throttling) {
+        super(GlobalIdGenerator.generate(throttling));
+    }
 }

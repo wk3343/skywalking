@@ -21,6 +21,7 @@ package org.apache.skywalking.apm.agent.core.context;
 import org.apache.skywalking.apm.agent.core.boot.*;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.sampling.SamplingService;
+import org.apache.skywalking.apm.agent.core.sampling.ThrottlingService;
 
 /**
  * @author wusheng
@@ -51,7 +52,8 @@ public class ContextManagerExtendService implements BootService {
         } else {
             SamplingService samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
             if (forceSampling || samplingService.trySampling()) {
-                context = new TracingContext();
+                ThrottlingService throttlingService = ServiceManager.INSTANCE.findService(ThrottlingService.class);
+                context = new TracingContext(throttlingService.tryThrottling());
             } else {
                 context = new IgnoredTracerContext();
             }

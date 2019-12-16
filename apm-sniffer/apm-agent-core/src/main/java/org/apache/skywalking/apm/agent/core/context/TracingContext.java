@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.apm.agent.core.boot.ServiceManager;
 import org.apache.skywalking.apm.agent.core.conf.Config;
 import org.apache.skywalking.apm.agent.core.conf.RemoteDownstreamConfig;
+import org.apache.skywalking.apm.agent.core.context.ids.DistributedTraceId;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.AbstractTracingSpan;
 import org.apache.skywalking.apm.agent.core.context.trace.EntrySpan;
@@ -97,6 +98,14 @@ public class TracingContext implements AbstractTracerContext {
      */
     TracingContext() {
         this.segment = new TraceSegment();
+        this.spanIdGenerator = 0;
+        samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
+        isRunningInAsyncMode = false;
+        running = true;
+    }
+
+    TracingContext(boolean throttling) {
+        this.segment = new TraceSegment(throttling);
         this.spanIdGenerator = 0;
         samplingService = ServiceManager.INSTANCE.findService(SamplingService.class);
         isRunningInAsyncMode = false;
@@ -469,6 +478,18 @@ public class TracingContext implements AbstractTracerContext {
                  * be ignored
                  */
                 if (segment.createTime() < RemoteDownstreamConfig.Agent.INSTANCE_REGISTERED_TIME) {
+                    finishedSegment.setIgnore(true);
+                }
+
+                boolean throttle = false;
+                List<DistributedTraceId> relatedGlobalTraces = segment.getRelatedGlobalTraces();
+                if (relatedGlobalTraces != null && !relatedGlobalTraces.isEmpty()) {
+                    DistributedTraceId distributedTraceId = relatedGlobalTraces.get(0);
+                    if (distributedTraceId != null) {
+                        throttle = distributedTraceId.toString().endsWith("0");
+                    }
+                }
+                if (throttle) {
                     finishedSegment.setIgnore(true);
                 }
 

@@ -64,6 +64,22 @@ public final class GlobalIdGenerator {
         );
     }
 
+    public static ID generate(boolean throttling) {
+        if (RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID == DictionaryUtil.nullValue()) {
+            throw new IllegalStateException();
+        }
+        IDContext context = THREAD_ID_SEQUENCE.get();
+
+        long seq = context.nextSeq();
+        seq = seq * 10 + (throttling ? 0 : 1);
+
+        return new ID(
+                RemoteDownstreamConfig.Agent.SERVICE_INSTANCE_ID,
+                Thread.currentThread().getId(),
+                seq
+        );
+    }
+
     private static class IDContext {
         private long lastTimestamp;
         private short threadSeq;

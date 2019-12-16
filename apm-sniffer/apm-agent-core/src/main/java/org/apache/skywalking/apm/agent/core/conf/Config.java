@@ -59,6 +59,11 @@ public class Config {
         public static int SAMPLE_N_PER_3_SECS = -1;
 
         /**
+         * The throttling rate precision is 1/10000. 10000 means 100% sample in default.
+         */
+        public static int THROTTLING_RATE = 10000;
+
+        /**
          * If the operation name of the first span is included in this set, this segment should be ignored.
          */
         public static String IGNORE_SUFFIX = ".jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg";
